@@ -1,0 +1,626 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>EU Integration Tracker</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* Layout: sticky tab bar over three views (Accession, Integration, Map); data-dense tables, one map with a side panel. */
+:root{
+  --bg:#f3f5fa; --surface:#ffffff; --surface2:#eaeef8; --ink:#0e1a3c; --muted:#56628a; --line:#d8deee;
+  --accent:#1b3fa0; --star:#b98500; --good:#1d7a4b; --warn:#a85f00; --crit:#b3261e;
+  --st-member:#0a1f5c; --st-closing:#1b3fa0; --st-chapters:#4a73d6; --st-talks:#86a6e8; --st-cand:#bfd1f3; --st-potential:#e1e9f8; --st-halted:#e0a030; --st-none:#d3d8e4;
+  --hm-lo:#eef2fb; --hm-hi:#1b3fa0; --hm-txt-hi:#ffffff;
+  --sea:#dbe7f5; --sea2:#c9dcef;
+  --font-display:"Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-body:"Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0b1124; --surface:#131b35; --surface2:#1a2442; --ink:#e8ecf8; --muted:#9aa5c7; --line:#27315a;
+    --accent:#86a9ff; --star:#f0c04a; --good:#58c68c; --warn:#f0a94a; --crit:#ff8a80;
+    --st-member:#c4d4ff; --st-closing:#86a9ff; --st-chapters:#5b85e6; --st-talks:#3f63b8; --st-cand:#2d4688; --st-potential:#22345f; --st-halted:#d9962b; --st-none:#2a3352;
+    --hm-lo:#1a2442; --hm-hi:#7aa0f5; --hm-txt-hi:#07102b;
+    --sea:#0e1a33; --sea2:#0a1429; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0b1124; --surface:#131b35; --surface2:#1a2442; --ink:#e8ecf8; --muted:#9aa5c7; --line:#27315a;
+  --accent:#86a9ff; --star:#f0c04a; --good:#58c68c; --warn:#f0a94a; --crit:#ff8a80;
+  --st-member:#c4d4ff; --st-closing:#86a9ff; --st-chapters:#5b85e6; --st-talks:#3f63b8; --st-cand:#2d4688; --st-potential:#22345f; --st-halted:#d9962b; --st-none:#2a3352;
+  --hm-lo:#1a2442; --hm-hi:#7aa0f5; --hm-txt-hi:#07102b;
+  --sea:#0e1a33; --sea2:#0a1429; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.5;margin:0;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:0 40px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+.wrap{max-width:1240px;margin:0 auto}
+header.top{padding:28px 0 18px;display:flex;flex-wrap:wrap;gap:8px 24px;align-items:flex-end;justify-content:space-between}
+h1{font-family:var(--font-display);font-weight:400;font-size:clamp(30px,5vw,46px);line-height:1.05;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 em{color:var(--accent);font-style:italic}
+.asof{color:var(--muted);font-size:13px;max-width:44ch}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line);display:flex;gap:4px;overflow-x:auto;padding:6px 0 0}
+nav.tabs button{font:inherit;font-weight:600;color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;cursor:pointer;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+nav.tabs button:hover{color:var(--ink)}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+section.view{padding-top:22px;display:grid;gap:26px}
+h2{font-family:var(--font-display);font-weight:400;font-size:26px;margin:0 0 4px;text-wrap:balance}
+.sub{color:var(--muted);margin:0 0 12px;max-width:80ch}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
+.kpi .v{font-family:var(--font-display);font-size:34px;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi .v small{font-family:var(--font-body);font-size:14px;color:var(--muted);margin-left:4px}
+.kpi .l{color:var(--muted);font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.kpi .n{font-size:13px;margin-top:6px;color:var(--muted)}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;background:var(--surface);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right}
+.country{font-weight:600;white-space:nowrap}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600;background:var(--surface2);color:var(--ink);white-space:nowrap}
+.pill i{width:9px;height:9px;border-radius:50%;display:inline-block;border:1px solid color-mix(in srgb,var(--ink) 25%,transparent)}
+.chbar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--surface2);min-width:140px;gap:2px}
+.chbar .c{background:var(--st-closing)}
+.chbar .o{background:var(--st-talks)}
+.chnum{font-size:12.5px;color:var(--muted);margin-top:3px}
+.chnum b{color:var(--ink)}
+.link{font:inherit;background:none;border:0;color:var(--accent);cursor:pointer;padding:0;font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0;display:grid;gap:8px;align-content:start}
+.card h3{font-family:var(--font-display);font-weight:400;font-size:22px;margin:0;display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.card p{margin:0}
+.card .lab{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.hm td,.hm th{padding:6px 8px;text-align:center;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
+.hm th.rowh,.hm td.rowh{text-align:left;position:sticky;left:0;background:var(--surface);z-index:1;min-width:230px;white-space:normal;font-weight:500;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink)}
+.hm tr.cl td{background:var(--surface2);font-weight:700;text-align:left;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.hm td.v{background:color-mix(in srgb,var(--hm-hi) calc(var(--v) * 100%),var(--hm-lo));min-width:74px;font-weight:600}
+.hm td.v.hi{color:var(--hm-txt-hi)}
+.hm td.na{background:repeating-linear-gradient(45deg,var(--surface2),var(--surface2) 4px,var(--surface) 4px,var(--surface) 8px);color:var(--muted)}
+.hm tr.avg td{font-weight:700;background:var(--surface2)}
+.ramp{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+.ramp .bar{height:10px;width:160px;border-radius:5px;background:linear-gradient(90deg,var(--hm-lo),var(--hm-hi));border:1px solid var(--line)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.chip{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:5px 11px;border-radius:99px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.pl{display:inline-block;width:22px;text-align:center;font-weight:700}
+.pl.f{color:var(--accent)} .pl.p{color:var(--star)} .pl.n{color:var(--muted);font-weight:400}
+.scorebar{display:flex;align-items:center;gap:8px;min-width:120px}
+.scorebar span.b{height:8px;border-radius:4px;background:var(--accent);display:block}
+.legendline{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--muted);margin:8px 0 0}
+.bars{display:grid;gap:5px}
+.bars .r{display:grid;grid-template-columns:150px 1fr 40px;gap:10px;align-items:center;font-size:13px}
+.bars .r .t{height:12px;background:var(--surface2);border-radius:6px;overflow:hidden}
+.bars .r .t span{display:block;height:100%;border-radius:6px}
+.bars .r .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bars .r .vv{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.mapgrid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start}
+.mapbox{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,var(--sea) 0%,var(--sea2) 100%);min-height:560px}
+#mapc{width:100%;height:620px}
+.maptools{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{font:inherit;font-weight:600;border:0;background:none;color:var(--muted);padding:7px 13px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--bg)}
+.maplegend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px}
+.maplegend span{display:inline-flex;align-items:center;gap:6px}
+.maplegend i{width:14px;height:14px;border-radius:3px;border:1px solid color-mix(in srgb,var(--ink) 25%,transparent);display:inline-block}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:10px;min-width:0;max-height:700px;overflow:auto}
+.panel h3{font-family:var(--font-display);font-weight:400;font-size:28px;margin:0;line-height:1.1}
+.panel .hint{color:var(--muted)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pillars div{border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:12px}
+.pillars b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+.mapfail{padding:24px;display:grid;gap:12px}
+.cl-list{display:flex;flex-wrap:wrap;gap:6px}
+.src{font-size:13px;color:var(--muted)}
+.src ul{margin:6px 0 0;padding-left:18px;columns:2 300px}
+.src a{color:var(--accent)}
+.note{font-size:12.5px;color:var(--muted);margin-top:8px;max-width:90ch}
+.highcharts-credits{opacity:.6}
+@media (max-width:900px){.mapgrid{grid-template-columns:1fr}.panel{max-height:none}.bars .r{grid-template-columns:110px 1fr 36px}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>EU <em>Integration</em> Tracker</h1>
+    <p class="asof">Accession progress of ten countries and the level of integration of every European state. Data as of 16 October 2026.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button role="tab" id="tab-accession" aria-selected="true" aria-controls="v-accession">Accession progress</button>
+    <button role="tab" id="tab-integration" aria-selected="false" aria-controls="v-integration">European integration</button>
+    <button role="tab" id="tab-map" aria-selected="false" aria-controls="v-map">Interactive map</button>
+  </nav>
+
+  <section class="view" id="v-accession" role="tabpanel" aria-labelledby="tab-accession">
+    <div class="kpis" id="kpi-acc"></div>
+    <div>
+      <h2>Negotiating chapters by country</h2>
+      <p class="sub">Chapters opened and provisionally closed, as reported by the Council of the EU and the European Commission. Provisional closure is not final until all chapters are agreed.</p>
+      <div class="scroll"><table id="tbl-acc"></table></div>
+      <div class="legendline"><span><i class="pill" style="padding:0;background:none"><i style="background:var(--st-closing)"></i></i> Provisionally closed</span><span><i class="pill" style="padding:0;background:none"><i style="background:var(--st-talks)"></i></i> Opened, not yet closed</span><span>Grey: not yet opened</span></div>
+    </div>
+    <div>
+      <h2>Latest developments and next steps</h2>
+      <div class="cards" id="cards-acc"></div>
+    </div>
+    <div>
+      <h2>Alignment with EU standards, chapter by chapter</h2>
+      <p class="sub">Level of preparation on a 1 to 5 scale, based on the European Commission 2025 reports as analysed by European Pravda and compiled on Wikipedia. Higher means better prepared.</p>
+      <div class="scroll"><table class="hm" id="tbl-hm"></table></div>
+      <div class="ramp"><span>1 Early stage</span><span class="bar"></span><span>5 Well advanced</span><span>· Hatched: no score available</span></div>
+    </div>
+    <div>
+      <h2>Milestones</h2>
+      <div class="scroll"><table id="tbl-ms"></table></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-integration" role="tabpanel" aria-labelledby="tab-integration" hidden>
+    <div class="kpis" id="kpi-int"></div>
+    <div>
+      <h2>Integration level of all European states</h2>
+      <p class="sub">Each state is scored on six pillars: EU membership, single market access, customs union, Schengen, the euro and the area of freedom, security and justice. Full participation counts 1, partial counts 0.5. The score is an indicative index built from the Wikipedia comparison of EU agreements, not an official measure. NATO membership is shown for reference and is not part of the score.</p>
+      <div class="chips" id="chips-int" role="group" aria-label="Filter by group"></div>
+      <div class="scroll"><table id="tbl-int"></table></div>
+      <div class="legendline"><span><b class="pl f">●</b> Full</span><span><b class="pl p">◐</b> Partial, opt-out or pending</span><span><b class="pl n">○</b> None</span></div>
+    </div>
+    <div>
+      <h2>Ranking by integration score</h2>
+      <div class="bars" id="bars-int"></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-map" role="tabpanel" aria-labelledby="tab-map" hidden>
+    <div>
+      <h2>Interactive map of Europe</h2>
+      <p class="sub">Click a country for details. Scroll or use the buttons to zoom, drag to move.</p>
+      <div class="maptools">
+        <div class="seg" role="group" aria-label="Map layer">
+          <button id="m-acc" aria-pressed="true">Accession status</button>
+          <button id="m-int" aria-pressed="false">Integration level</button>
+        </div>
+        <div class="maplegend" id="maplegend"></div>
+      </div>
+      <div class="mapgrid">
+        <div class="mapbox"><div id="mapc"></div></div>
+        <aside class="panel" id="panel" aria-live="polite"></aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" style="padding-top:30px">
+    <div class="src" id="sources"></div>
+    <p class="note">Chapter counts follow the sources below and can change after each accession conference. Serbia counts 34 chapters because it includes chapter 35 on the normalisation of relations with Kosovo. Kosovo is treated as a potential candidate; five EU member states do not recognise its independence.</p>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/11.4.8/highmaps.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@highcharts/map-collection@1.1.3/custom/europe.js" onerror="window.__mapDataFailed=true"></script>
+<script>
+(function(){
+"use strict";
+
+/* ---------- Data ---------- */
+// id, name, tier, pillars [EU, single market, customs union, Schengen, euro, AFSJ], note, lon, lat
+const RAW = [
+["at","Austria","core",[1,1,1,1,1,1],"",16.37,48.21],["be","Belgium","core",[1,1,1,1,1,1],"",4.35,50.85],
+["bg","Bulgaria","core",[1,1,1,1,1,1],"Joined the euro on 1 January 2026",23.32,42.70],["hr","Croatia","core",[1,1,1,1,1,1],"",15.98,45.81],
+["ee","Estonia","core",[1,1,1,1,1,1],"",24.75,59.44],["fi","Finland","core",[1,1,1,1,1,1],"",24.94,60.17],
+["fr","France","core",[1,1,1,1,1,1],"",2.35,48.86],["de","Germany","core",[1,1,1,1,1,1],"",13.40,52.52],
+["gr","Greece","core",[1,1,1,1,1,1],"",23.73,37.98],["it","Italy","core",[1,1,1,1,1,1],"",12.50,41.90],
+["lv","Latvia","core",[1,1,1,1,1,1],"",24.11,56.95],["lt","Lithuania","core",[1,1,1,1,1,1],"",25.28,54.69],
+["lu","Luxembourg","core",[1,1,1,1,1,1],"",6.13,49.61],["mt","Malta","core",[1,1,1,1,1,1],"",14.51,35.90],
+["nl","Netherlands","core",[1,1,1,1,1,1],"",4.90,52.37],["pt","Portugal","core",[1,1,1,1,1,1],"",-9.14,38.72],
+["sk","Slovakia","core",[1,1,1,1,1,1],"",17.11,48.15],["si","Slovenia","core",[1,1,1,1,1,1],"",14.51,46.06],
+["es","Spain","core",[1,1,1,1,1,1],"",-3.70,40.42],
+["cz","Czechia","eu",[1,1,1,1,.5,1],"Obliged to adopt the euro, not yet joined",14.42,50.09],
+["hu","Hungary","eu",[1,1,1,1,.5,1],"Obliged to adopt the euro, not yet joined",19.04,47.50],
+["ro","Romania","eu",[1,1,1,1,.5,1],"Obliged to adopt the euro, not yet joined",26.10,44.43],
+["se","Sweden","eu",[1,1,1,1,.5,1],"Obliged to adopt the euro, not yet joined",18.07,59.33],
+["pl","Poland","eu",[1,1,1,1,.5,.5],"Euro not yet adopted; partial opt-out from the Charter of Fundamental Rights",21.01,52.23],
+["cy","Cyprus","eu",[1,1,1,.5,1,1],"Committed to join Schengen; EU law suspended in the north",33.38,35.17],
+["dk","Denmark","eu",[1,1,1,1,.5,0],"Euro opt-out (ERM II member) and justice and home affairs opt-out",12.57,55.68],
+["ie","Ireland","eu",[1,1,1,.5,1,.5],"Schengen opt-out (Common Travel Area) and flexible opt-in on justice and home affairs",-6.26,53.35],
+["no","Norway","eea",[0,1,0,1,0,0],"EEA and Schengen; membership application frozen",10.75,59.91],
+["is","Iceland","eea",[0,1,0,1,0,0],"EEA and Schengen; a 2026 referendum on resuming talks was rejected",-21.94,64.15],
+["li","Liechtenstein","eea",[0,1,0,1,0,0],"EEA and Schengen; customs union with Switzerland",9.52,47.14],
+["ch","Switzerland","eea",[0,.5,0,1,0,0],"Bilateral treaties, Schengen; application withdrawn",7.45,46.95],
+["ad","Andorra","micro",[0,0,1,0,1,0],"Customs union and euro by agreement; visa-free, outside Schengen",1.52,42.51],
+["mc","Monaco","micro",[0,0,1,1,1,0],"De facto customs union and Schengen with France; euro by agreement",7.42,43.74],
+["sm","San Marino","micro",[0,0,1,1,1,0],"Customs union, open border with Italy, euro by agreement",12.45,43.94],
+["va","Vatican City","micro",[0,0,0,1,1,0],"Open border with Italy, euro by agreement",12.45,41.90],
+["me","Montenegro","cand",[0,.5,0,0,.5,0],"Stabilisation and Association Agreement; euro adopted unilaterally",19.26,42.44],
+["al","Albania","cand",[0,.5,0,0,0,0],"Stabilisation and Association Agreement; visa-free travel",19.82,41.33],
+["rs","Serbia","cand",[0,.5,0,0,0,0],"Stabilisation and Association Agreement; visa-free travel",20.46,44.79],
+["mk","North Macedonia","cand",[0,.5,0,0,0,0],"Stabilisation and Association Agreement; visa-free travel",21.43,42.00],
+["ba","Bosnia and Herzegovina","cand",[0,.5,0,0,0,0],"Stabilisation and Association Agreement; visa-free travel",18.41,43.86],
+["md","Moldova","cand",[0,.5,0,0,0,0],"Association Agreement with free trade area; visa-free travel",28.86,47.01],
+["ua","Ukraine","cand",[0,.5,0,0,0,0],"Association Agreement with free trade area; visa-free travel",30.52,50.45],
+["ge","Georgia","cand",[0,.5,0,0,0,0],"Association Agreement with free trade area; accession process halted",44.79,41.72],
+["xk","Kosovo","cand",[0,.5,0,0,.5,0],"Stabilisation and Association Agreement; euro adopted unilaterally",21.17,42.67],
+["tr","Türkiye","cand",[0,0,1,0,0,0],"Customs union since 1995; negotiations frozen",32.85,39.93],
+["am","Armenia","none",[0,.5,0,0,0,0],"Comprehensive and Enhanced Partnership Agreement; accession bill approved, no application yet",44.51,40.18],
+["gb","United Kingdom","none",[0,0,0,0,0,0],"Left the EU in 2020; Trade and Cooperation Agreement",-0.13,51.51],
+["by","Belarus","none",[0,0,0,0,0,0],"No integration; Eastern Partnership participation suspended",27.57,53.90],
+["ru","Russia","none",[0,0,0,0,0,0],"No integration",37.62,55.75],
+["az","Azerbaijan","none",[0,0,0,0,0,0],"Not on the enlargement agenda",49.87,40.41]
+];
+// NATO members among the listed states (32 allies in total, including the United States and Canada)
+const NATO = new Set(["al","be","bg","hr","cz","dk","ee","fi","fr","de","gr","hu","is","it","lv","lt","lu","me","nl","mk","no","pl","pt","ro","sk","si","es","se","tr","gb"]);
+const C = {};
+RAW.forEach(r=>{ C[r[0]] = {id:r[0],name:r[1],tier:r[2],p:r[3],note:r[4],lon:r[5],lat:r[6],nato:NATO.has(r[0]),score:r[3].reduce((a,b)=>a+b,0)}; });
+
+const TIERS = {
+  core:{label:"Full participation",ramp:"member"},
+  eu:{label:"EU member, partial participation",ramp:"closing"},
+  eea:{label:"Single market associate (EEA, EFTA)",ramp:"chapters"},
+  micro:{label:"Microstate arrangements",ramp:"talks"},
+  cand:{label:"Candidate or applicant",ramp:"cand"},
+  none:{label:"No accession path",ramp:"none"}
+};
+const PILLARS = ["EU membership","Single market","Customs union","Schengen","Euro","Justice and home affairs"];
+
+const STAGES = {
+  member:{label:"EU member"},
+  closing:{label:"Closing chapters"},
+  chapters:{label:"Negotiating, chapters opening"},
+  talks:{label:"Talks launched, no chapters open"},
+  cand:{label:"Candidate, talks not started"},
+  potential:{label:"Applicant (potential candidate)"},
+  halted:{label:"Frozen or halted"},
+  none:{label:"Not on the enlargement agenda"}
+};
+const ACC = [
+ {id:"me",stage:"closing",label:"Closing chapters",total:33,opened:33,closed:21,dates:["15 Dec 2008","17 Dec 2010","29 Jun 2012","18 Dec 2012"],
+  latest:"October 2026: chapters 17, 18 and 19 were provisionally closed, bringing the total to 21 of 33. The Council has started work on the accession treaty.",
+  next:"Close the remaining 12 chapters. The government aims to finish in 2026 and join in 2028."},
+ {id:"al",stage:"closing",label:"Closing chapters",total:33,opened:33,closed:4,dates:["28 Apr 2009","27 Jun 2014","19 Jul 2022","15 Oct 2024"],
+  latest:"13 Oct 2026: chapter 20 (enterprise and industrial policy) was provisionally closed, after chapters 25, 26 and 30 on 14 Jul 2026. Interim benchmarks for Cluster 1 were confirmed on 26 May 2026.",
+  next:"Close the other 29 chapters, including chapters 23 and 24. Tirana wants to double the closed chapters by December and finish by end of 2027."},
+ {id:"rs",stage:"chapters",label:"Negotiating, Cluster 3 blocked",total:34,opened:22,closed:2,dates:["22 Dec 2009","1 Mar 2012","21 Jan 2014","14 Dec 2015"],
+  latest:"July 2026: the Commission recommended opening Cluster 3, but EU ambassadors could not agree. Eight member states opposed it, citing the rule of law and weak alignment with EU foreign policy. Status may have changed since.",
+  next:"Unanimous Council decision to open Cluster 3, linked to progress on the rule of law and relations with Kosovo."},
+ {id:"md",stage:"chapters",label:"Negotiating, 4 of 6 clusters open",total:33,opened:24,closed:0,dates:["3 Mar 2022","23 Jun 2022","25 Jun 2024","15 Jun 2026"],
+  latest:"13 Oct 2026: Clusters 2 and 3 opened, after Cluster 1 on 15 Jun and Cluster 6 in July. Moldova's government aims to conclude talks by 2028 and join by 2030.",
+  next:"Open Clusters 4 and 5 (nine chapters), targeted for December. Closing chapters depends on the Cluster 1 interim benchmark report."},
+ {id:"ua",stage:"chapters",label:"Negotiating, 4 of 6 clusters open",total:33,opened:24,closed:0,dates:["28 Feb 2022","23 Jun 2022","25 Jun 2024","15 Jun 2026"],
+  latest:"13 Oct 2026: Clusters 2 and 3 opened, after Cluster 1 on 15 Jun and Cluster 6 in July. Hungary lifted its block in June 2026 following an agreement on minority rights.",
+  next:"Open Clusters 4 and 5 (nine chapters), targeted for December. Closing chapters depends on the Cluster 1 interim benchmark report."},
+ {id:"mk",stage:"talks",label:"Talks launched, no chapters open",total:33,opened:0,closed:0,dates:["22 Mar 2004","17 Dec 2005","19 Jul 2022","Not yet"],
+  latest:"July 2026: the foreign minister said the EU path remains blocked. The next intergovernmental conference depends on a constitutional amendment on the Bulgarian minority, and Skopje has not agreed on how to proceed.",
+  next:"Constitutional amendment, then the first conference to open Cluster 1."},
+ {id:"tr",stage:"halted",label:"Negotiations frozen",total:33,opened:16,closed:1,dates:["14 Apr 1987","12 Dec 1999","3 Oct 2005","12 Jun 2006"],
+  latest:"Talks have been frozen since December 2016, and the Council reconfirms this every year. In August 2026 President Erdoğan said EU membership is no longer a priority.",
+  next:"None scheduled. Updating the customs union remains under discussion."},
+ {id:"ba",stage:"cand",label:"Candidate",total:null,opened:null,closed:null,dates:["15 Feb 2016","15 Dec 2022","Not yet","Not yet"],
+  latest:"EU leaders approved opening talks conditionally on 21 Mar 2024. As of the Council's December 2025 conclusions, the negotiating framework was still waiting for a national programme to adopt EU law, a chief negotiator and an IPA III coordinator.",
+  next:"Meet those conditions so the Commission can propose the negotiating framework."},
+ {id:"ge",stage:"halted",label:"Candidate, process halted",total:null,opened:null,closed:null,dates:["3 Mar 2022","14 Dec 2023","Not yet","Not yet"],
+  latest:"Accession has been on hold since mid-2024 over the foreign agents law. The Georgian government says talks are suspended until the end of 2028. In March 2026 the EU suspended visa-free travel for diplomatic and service passports.",
+  next:"A Commission recommendation to open talks, considered unlikely under current conditions."},
+ {id:"xk",stage:"potential",label:"Applicant (potential candidate)",total:null,opened:null,closed:null,dates:["14 Dec 2022","Not yet","Not yet","Not yet"],
+  latest:"The Council has not yet asked the Commission for an opinion on the application. Five member states do not recognise Kosovo: Cyprus, Greece, Romania, Slovakia and Spain.",
+  next:"Unanimous Council decision to request a Commission opinion."}
+];
+const ACCBY = {}; ACC.forEach(a=>ACCBY[a.id]=a);
+
+const HM_COLS = [["al","Albania"],["md","Moldova"],["me","Montenegro"],["mk","N. Macedonia"],["rs","Serbia"],["ua","Ukraine"],["ba","Bosnia & H."],["ge","Georgia"],["xk","Kosovo"],["tr","Türkiye"]];
+const N = null;
+const HM = [
+ ["Cluster 1: Fundamentals"],
+ ["Public administration reform",[3,2,3,3,3,2.5,1.5,2.5,2,2.5]],
+ ["23. Judiciary and fundamental rights",[3,2,3.5,2.5,2,2,2,1.5,1.5,1]],
+ ["24. Justice, freedom and security",[3,2,3.5,3,2.5,2,2,2,2,3]],
+ ["Functioning market economy",[4,2,3.5,4,4,2,1,3,2,5]],
+ ["Capacity to cope with competitive pressure",[2,1.5,3.5,3,3.5,1.5,1.5,2,1.5,4]],
+ ["5. Public procurement",[3,2,4,3,3,2,2,2,2.5,3]],
+ ["18. Statistics",[3,2,3,3.5,3.5,2,1,2,2,3]],
+ ["32. Financial control",[3,2,4,3,3,2,2,2,2,4]],
+ ["Cluster 2: Internal market"],
+ ["1. Free movement of goods",[2.5,3,3,3,3,3,1,2,2.5,4]],
+ ["2. Freedom of movement for workers",[2.5,2,2,1,3,1,2,1,2,1]],
+ ["3. Right of establishment and services",[3,2,4,3,3,2,1,3,3,1]],
+ ["4. Free movement of capital",[3.5,3,4,3.5,3.5,2.5,3,3,3,3]],
+ ["6. Company law",[3,2,4.5,4,4,2,2,2,2,5]],
+ ["7. Intellectual property law",[3,3,5,3,4,2,3,2,3,4]],
+ ["8. Competition policy",[2.5,2,3,3,3,2,2,1.5,2,2]],
+ ["9. Financial services",[3.5,2,3.5,3,3,2,2.5,2,3,4]],
+ ["28. Consumer and health protection",[1,2.5,3,3,3,2.5,1,2,1,4]],
+ ["Cluster 3: Competitiveness and inclusive growth"],
+ ["10. Digital transformation and media",[3.5,2,4,3,3,3.5,1,2,2,2]],
+ ["16. Taxation",[3,2,3.5,3,3.5,2,2,2.5,2,3]],
+ ["17. Economic and monetary policy",[3.5,2,3,3.5,3.5,3,1,3,3,2]],
+ ["19. Social policy and employment",[3,2.5,2.5,3,3,1,2,2,2,2]],
+ ["20. Enterprise and industrial policy",[3.5,2,4,3.5,3,2.5,1,3,3,3]],
+ ["25. Science and research",[2.5,3,4,4,4,3,2,3,1,5]],
+ ["26. Education and culture",[3.5,3,4,3,4,2.5,1,3,2,3]],
+ ["29. Customs union",[3.5,4,3,4,4,4,2,3,3,4]],
+ ["Cluster 4: Green agenda and sustainable connectivity"],
+ ["14. Transport",[2,2.5,3.5,3,4,2,2,2,2,3]],
+ ["15. Energy",[4,3.5,4,3,3,4,1,2,2,3]],
+ ["21. Trans-European networks",[2,2,3.5,4,3.5,2,2,2,2,5]],
+ ["27. Environment and climate change",[2,1.5,2,2,2,2,1.5,1,1,2]],
+ ["Cluster 5: Resources, agriculture and cohesion"],
+ ["11. Agriculture and rural development",[2,1.5,3,3,2,1.5,1,1,2,2]],
+ ["12. Food safety and veterinary policy",[2,3,3,4,3,3,2,2,3,2]],
+ ["13. Fisheries and aquaculture",[3,3,3,3,3,2,1,2,1,3]],
+ ["22. Regional policy and structural instruments",[3,3,3,3,3,2,1,1.5,1,3]],
+ ["33. Financial and budgetary provisions",[2,1.5,2,1,2,1,1,1,N,2]],
+ ["Cluster 6: External relations"],
+ ["30. External relations",[4,3,4,4,3,4,2,3,2,3]],
+ ["31. Foreign, security and defence policy",[4,4,5,4,3,4,2,2.5,N,2]],
+ ["Average level",[2.90,2.39,3.44,3.13,3.15,2.33,1.64,2.14,2.09,2.99],"avg"]
+];
+
+const SOURCES = [
+ ["Potential enlargement of the European Union (Wikipedia)","https://en.wikipedia.org/wiki/Potential_enlargement_of_the_European_Union"],
+ ["European integration (Wikipedia)","https://en.wikipedia.org/wiki/European_integration"],
+ ["Council of the EU and European Commission accession conference releases, via EEAS, Council press releases and the European Commission enlargement site","https://enlargement.ec.europa.eu/"],
+ ["European Western Balkans: Montenegro and Albania accession conference coverage, July and October 2026","https://europeanwesternbalkans.com/"],
+ ["OSW and PISM analyses of the Ukraine and Moldova clusters, June 2026","https://www.osw.waw.pl/en/publikacje/analyses/2026-06-16/ukraine-and-moldova-launch-eu-accession-negotiations"],
+ ["New Union Post: Ukraine and Moldova clusters 2 and 3, 13 Oct 2026","https://newunionpost.eu/2026/10/13/ukraine-moldova-clusters-eu-accession/"],
+ ["Brussels Signal: Albania closes its fourth chapter, Oct 2026","https://brusselssignal.eu/2026/10/albania-closes-its-fourth-eu-accession-chapter-with-29-left-to-go/"],
+ ["BTA and EWB on North Macedonia and Serbia, July 2026","https://www.bta.bg/en/news/1173193-foreign-minister-mucunski-says-north-macedonia-s-eu-path-remains-blocked"],
+ ["Accession of Georgia to the European Union (Wikipedia)","https://en.wikipedia.org/wiki/Accession_of_Georgia_to_the_European_Union"]
+];
+
+/* ---------- Helpers ---------- */
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const css = n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function stageOf(id){
+  if(ACCBY[id]) return ACCBY[id].stage;
+  if(C[id] && C[id].p[0]===1) return "member";
+  return "none";
+}
+function wikiUrl(id){
+  const nm = {al:"Albania",ba:"Bosnia_and_Herzegovina",ge:"Georgia",md:"Moldova",me:"Montenegro",mk:"North_Macedonia",rs:"Serbia",tr:"Turkey",ua:"Ukraine",xk:"Kosovo"}[id];
+  return nm ? "https://en.wikipedia.org/wiki/Accession_of_"+nm+"_to_the_European_Union" : null;
+}
+function stagePill(stage,label){
+  return '<span class="pill"><i style="background:var(--st-'+stage+')"></i>'+esc(label||STAGES[stage].label)+'</span>';
+}
+function pl(v){ return v===1?'<span class="pl f" title="Full">●</span>':v===.5?'<span class="pl p" title="Partial">◐</span>':'<span class="pl n" title="None">○</span>'; }
+const fmt = n=>Number.isInteger(n)?String(n):n.toFixed(1);
+
+/* ---------- Accession view ---------- */
+function renderAccession(){
+  const neg = ACC.filter(a=>a.total!==null && a.opened>0 || a.id==="mk").length;
+  $("#kpi-acc").innerHTML =
+    kpi("9 + 1","Candidates and one applicant","Kosovo applied in 2022 and is a potential candidate")+
+    kpi("6","In active negotiations","Montenegro, Serbia, Albania, North Macedonia, Moldova, Ukraine")+
+    kpi("21<small>of 33 closed</small>","Montenegro, the frontrunner","Government target: accession in 2028")+
+    kpi("24<small>of 33 opened</small>","Ukraine and Moldova","Four of six clusters open since June 2026");
+  const rows = ACC.map(a=>{
+    const c = C[a.id];
+    let bar;
+    if(a.total===null){ bar = '<span style="color:var(--muted)">No negotiating chapters yet</span>'; }
+    else{
+      const cp = a.closed/a.total*100, op = (a.opened-a.closed)/a.total*100;
+      bar = '<div class="chbar" role="img" aria-label="'+a.closed+' closed, '+a.opened+' opened of '+a.total+'"><span class="c" style="width:'+cp+'%"></span><span class="o" style="width:'+op+'%"></span></div>'+
+            '<div class="chnum"><b>'+a.closed+'</b> closed · <b>'+a.opened+'</b> opened · '+a.total+' total</div>';
+    }
+    return '<tr><td class="country">'+esc(c.name)+'</td><td>'+stagePill(a.stage,a.label)+'</td><td style="min-width:200px">'+bar+'</td>'+
+      '<td>'+esc(a.dates[1])+'</td><td>'+esc(a.dates[2])+'</td><td>'+esc(a.dates[3])+'</td><td><button class="link" data-map="'+a.id+'">Map</button></td></tr>';
+  }).join("");
+  $("#tbl-acc").innerHTML = '<thead><tr><th>Country</th><th>Stage</th><th>Chapter progress</th><th>Candidate status</th><th>Talks opened</th><th>First chapters opened</th><th></th></tr></thead><tbody>'+rows+'</tbody>';
+  $("#cards-acc").innerHTML = ACC.map(a=>{
+    const c = C[a.id];
+    return '<article class="card"><h3>'+esc(c.name)+stagePill(a.stage,a.label)+'</h3>'+
+      '<div><div class="lab">Latest</div><p>'+esc(a.latest)+'</p></div>'+
+      '<div><div class="lab">Next step</div><p>'+esc(a.next)+'</p></div>'+
+      '<p><button class="link" data-map="'+a.id+'">Show on map</button></p></article>';
+  }).join("");
+  let h = '<thead><tr><th class="rowh">Chapter</th>'+HM_COLS.map(c=>'<th title="'+esc(C[c[0]].name)+'">'+esc(c[1])+'</th>').join("")+'</tr></thead><tbody>';
+  HM.forEach(r=>{
+    if(!r[1]){ h += '<tr class="cl"><td colspan="'+(HM_COLS.length+1)+'">'+esc(r[0])+'</td></tr>'; return; }
+    h += '<tr'+(r[2]==="avg"?' class="avg"':'')+'><td class="rowh">'+esc(r[0])+'</td>'+r[1].map(v=>{
+      if(v===null) return '<td class="na" title="No score available">–</td>';
+      const val = (v-1)/4;
+      return '<td class="v'+(v>=3.5?' hi':'')+'" style="--v:'+val.toFixed(3)+'">'+(r[2]==="avg"?v.toFixed(2):fmt(v))+'</td>';
+    }).join("")+'</tr>';
+  });
+  $("#tbl-hm").innerHTML = h+'</tbody>';
+  $("#tbl-ms").innerHTML = '<thead><tr><th>Country</th><th>Application</th><th>Candidate status</th><th>Talks opened</th><th>First chapters opened</th></tr></thead><tbody>'+
+    ACC.map(a=>'<tr><td class="country">'+esc(C[a.id].name)+'</td>'+a.dates.map(d=>'<td'+(d==="Not yet"?' style="color:var(--muted)"':'')+'>'+esc(d)+'</td>').join("")+'</tr>').join("")+'</tbody>';
+}
+function kpi(v,l,n){ return '<div class="kpi"><div class="v">'+v+'</div><div class="l">'+l+'</div><div class="n">'+n+'</div></div>'; }
+
+/* ---------- Integration view ---------- */
+let intFilter = "all", intSort = {k:"score",d:-1};
+function renderIntegration(){
+  $("#kpi-int").innerHTML =
+    kpi("27","EU member states","19 take part in every pillar")+
+    kpi("21","Eurozone members","Bulgaria joined on 1 January 2026")+
+    kpi("30","Schengen states","29 apply it; Cyprus is pending")+
+    kpi("4","Single market associates","Norway, Iceland, Liechtenstein, Switzerland")+
+    kpi("30","NATO members in this list","Plus the United States and Canada; 23 of the 27 EU states");
+  const chips = [["all","All"]].concat(Object.keys(TIERS).map(k=>[k,TIERS[k].label])).concat([["nato","NATO members"],["nonato","Not in NATO"]]);
+  $("#chips-int").innerHTML = chips.map(c=>'<button class="chip" data-f="'+c[0]+'" aria-pressed="'+(intFilter===c[0])+'">'+esc(c[1])+'</button>').join("");
+  const list = Object.values(C).filter(c=>intFilter==="all"||(intFilter==="nato"?c.nato:intFilter==="nonato"?!c.nato:c.tier===intFilter)).sort((a,b)=>{
+    const k=intSort.k; const av=k==="name"?a.name:a.score, bv=k==="name"?b.name:b.score;
+    if(av<bv) return -intSort.d; if(av>bv) return intSort.d; return a.name<b.name?-1:1;
+  });
+  const arrow = k=>intSort.k===k?(intSort.d>0?" ▲":" ▼"):"";
+  let h = '<thead><tr><th><button class="link" data-sort="name" style="text-decoration:none;color:inherit">Country'+arrow("name")+'</button></th><th>Group</th>'+PILLARS.map(p=>'<th style="text-align:center;white-space:normal;min-width:70px">'+esc(p)+'</th>').join("")+'<th style="text-align:center">NATO</th><th><button class="link" data-sort="score" style="text-decoration:none;color:inherit">Score'+arrow("score")+'</button></th><th></th></tr></thead><tbody>';
+  h += list.map(c=>'<tr><td class="country">'+esc(c.name)+'</td><td><span class="pill"><i style="background:var(--st-'+TIERS[c.tier].ramp+')"></i>'+esc(TIERS[c.tier].label)+'</span></td>'+
+    c.p.map(v=>'<td style="text-align:center">'+pl(v)+'</td>').join("")+
+    '<td style="text-align:center">'+(c.nato?'<span class="pill"><i style="background:var(--accent)"></i>Member</span>':'<span style="color:var(--muted)">Not a member</span>')+'</td>'+
+    '<td><div class="scorebar"><span class="b" style="width:'+(c.score/6*70)+'px"></span><b>'+fmt(c.score)+'</b></div></td><td><button class="link" data-map="'+c.id+'">Map</button></td></tr>').join("");
+  $("#tbl-int").innerHTML = h+'</tbody>';
+  const sorted = Object.values(C).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name));
+  $("#bars-int").innerHTML = sorted.map(c=>'<div class="r"><span class="nm" title="'+esc(c.name)+'">'+esc(c.name)+'</span><span class="t"><span style="width:'+(c.score/6*100)+'%;background:var(--st-'+TIERS[c.tier].ramp+')"></span></span><span class="vv">'+fmt(c.score)+'</span></div>').join("");
+}
+
+/* ---------- Detail panel ---------- */
+let selected = null;
+function renderPanel(){
+  const p = $("#panel");
+  if(!selected){ p.innerHTML = '<h3>Select a country</h3><p class="hint">Click any country on the map to see its accession status, integration level and latest developments.</p>'; return; }
+  const c = C[selected], a = ACCBY[selected], st = stageOf(selected);
+  let h = '<h3>'+esc(c.name)+'</h3><div>'+stagePill(st, a?a.label:(st==="member"?"EU member":STAGES[st].label))+' <span class="pill"><i style="background:var(--st-'+TIERS[c.tier].ramp+')"></i>'+esc(TIERS[c.tier].label)+'</span></div>';
+  if(c.note) h += '<p>'+esc(c.note)+'</p>';
+  h += '<div class="pillars">'+c.p.map((v,i)=>'<div><b>'+esc(PILLARS[i])+'</b>'+pl(v)+' '+(v===1?"Full":v===.5?"Partial":"None")+'</div>').join("")+'</div>';
+  h += '<dl class="kv"><dt>Integration score</dt><dd>'+fmt(c.score)+' of 6</dd><dt>NATO</dt><dd>'+(c.nato?"Member":"Not a member")+'</dd></dl>';
+  if(a){
+    h += '<dl class="kv"><dt>Application</dt><dd>'+esc(a.dates[0])+'</dd><dt>Candidate status</dt><dd>'+esc(a.dates[1])+'</dd><dt>Talks opened</dt><dd>'+esc(a.dates[2])+'</dd><dt>First chapters opened</dt><dd>'+esc(a.dates[3])+'</dd>';
+    if(a.total!==null) h += '<dt>Chapters opened</dt><dd>'+a.opened+' of '+a.total+'</dd><dt>Chapters closed</dt><dd>'+a.closed+' of '+a.total+'</dd>';
+    h += '</dl><div><div class="lab" style="font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600">Latest</div><p>'+esc(a.latest)+'</p></div><div><div class="lab" style="font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600">Next step</div><p>'+esc(a.next)+'</p></div>';
+    const w = wikiUrl(selected); if(w) h += '<p><a href="'+w+'" target="_blank" rel="noopener" style="color:var(--accent)">Accession details on Wikipedia</a></p>';
+  }
+  p.innerHTML = h;
+}
+
+/* ---------- Map ---------- */
+let chart = null, mapMode = "acc", mapReady = false;
+function colorFor(id){
+  if(!C[id]) return null;
+  const v = mapMode==="acc" ? stageOf(id) : TIERS[C[id].tier].ramp;
+  return css("--st-"+v);
+}
+function renderLegend(){
+  const items = mapMode==="acc"
+    ? ["member","closing","chapters","talks","cand","potential","halted","none"].map(k=>[k,STAGES[k].label])
+    : Object.keys(TIERS).map(k=>[TIERS[k].ramp,TIERS[k].label]);
+  $("#maplegend").innerHTML = items.map(i=>'<span><i style="background:var(--st-'+i[0]+')"></i>'+esc(i[1])+'</span>').join("");
+}
+function tooltipHtml(id){
+  const c = C[id]; if(!c) return false;
+  const a = ACCBY[id];
+  let s = '<b>'+esc(c.name)+'</b><br>';
+  s += mapMode==="acc" ? esc(a?a.label:(stageOf(id)==="member"?"EU member":STAGES[stageOf(id)].label)) : esc(TIERS[c.tier].label)+' · score '+fmt(c.score)+' · '+(c.nato?'NATO member':'Not in NATO');
+  if(mapMode==="acc" && a && a.total!==null) s += '<br>'+a.closed+' closed · '+a.opened+' opened of '+a.total;
+  return s+'<br><span style="opacity:.7">Click for details</span>';
+}
+function nameToId(name){
+  const n = String(name||"").toLowerCase();
+  const alias = {"macedonia":"mk","north macedonia":"mk","czech republic":"cz","czechia":"cz","bosnia and herzegovina":"ba","kosovo":"xk","republic of serbia":"rs","vatican":"va","vatican city":"va","united kingdom":"gb","russia":"ru","russian federation":"ru","northern cyprus":"cy","north cyprus":"cy","turkey":"tr","türkiye":"tr","moldova":"md","republic of moldova":"md"};
+  if(alias[n]) return alias[n];
+  for(const k in C){ if(C[k].name.toLowerCase()===n) return k; }
+  return null;
+}
+function idFromFeature(f){
+  let k = String((f.properties&&f.properties["hc-key"])||"").toLowerCase();
+  if(k==="kv") return "xk";
+  if(k==="nc") return "cy";
+  if(C[k]) return k;
+  return nameToId(f.properties && f.properties.name);
+}
+function buildChart(){
+  const map = Highcharts.maps["custom/europe"];
+  const feats = Highcharts.geojson(map);
+  const data = [], seen = {};
+  feats.forEach(f=>{
+    const id = idFromFeature(f); if(!id) return;
+    seen[id] = true;
+    data.push({"hc-key":f.properties["hc-key"], cid:id, color:colorFor(id)});
+  });
+  const pts = Object.keys(C).filter(id=>!seen[id]).map(id=>({name:C[id].name,cid:id,lon:C[id].lon,lat:C[id].lat,color:colorFor(id)}));
+  const surface = css("--surface"), ink = css("--ink"), line = css("--line");
+  chart = Highcharts.mapChart("mapc",{
+    chart:{map:map,backgroundColor:"transparent",spacing:[0,0,0,0],style:{fontFamily:css("--font-body")}},
+    title:{text:null},legend:{enabled:false},
+    credits:{enabled:true,text:"Highcharts · map data Natural Earth",style:{color:css("--muted")}},
+    mapNavigation:{enabled:true,enableMouseWheelZoom:true,buttonOptions:{verticalAlign:"bottom"},buttons:{zoomIn:{theme:{fill:surface,stroke:line,style:{color:ink}}},zoomOut:{theme:{fill:surface,stroke:line,style:{color:ink}}}}},
+    tooltip:{useHTML:true,backgroundColor:surface,borderColor:line,style:{color:ink},formatter:function(){ return tooltipHtml(this.point.options.cid); }},
+    plotOptions:{series:{point:{events:{click:function(){ selectCountry(this.options.cid,{zoom:false}); }}}}},
+    series:[
+      {type:"map",name:"Countries",data:data,joinBy:"hc-key",nullColor:css("--st-none"),borderColor:surface,borderWidth:.7,
+       states:{hover:{borderColor:ink,borderWidth:1.6,brightness:.06}}},
+      {type:"mappoint",name:"Small states",data:pts,marker:{radius:6,lineColor:surface,lineWidth:1.6},
+       states:{hover:{halo:{size:14}}}}
+    ]
+  });
+  applySelection();
+}
+function applyColors(){
+  if(!chart) return;
+  chart.series.forEach(s=>s.points.forEach(p=>{ const id=p.options.cid; if(id) p.update({color:colorFor(id)},false); }));
+  chart.redraw();
+}
+function applySelection(){
+  if(!chart) return;
+  const ink = css("--ink"), surface = css("--surface");
+  chart.series.forEach(s=>s.points.forEach(p=>{
+    const on = p.options.cid===selected;
+    if(s.type==="map") p.update({borderColor:on?ink:surface,borderWidth:on?2.4:.7},false);
+    else p.update({marker:{radius:on?9:6,lineColor:on?ink:surface,lineWidth:on?2.4:1.6}},false);
+  }));
+  chart.redraw();
+}
+function selectCountry(id,opts){
+  selected = id; renderPanel();
+  if(chart){
+    applySelection();
+    if(opts&&opts.zoom){
+      const pt = [].concat.apply([],chart.series.map(s=>s.points)).find(p=>p.options.cid===id);
+      if(pt){ try{ pt.zoomTo(); chart.mapView.zoomBy(-0.8); }catch(e){} }
+    }
+  }
+}
+function showFallback(){
+  $("#mapc").outerHTML = '<div class="mapfail" id="mapc"><p><b>The map could not be loaded in this view.</b> Country details are still available below. Choose a country to read its status.</p><div class="cl-list">'+
+    Object.values(C).map(c=>'<button class="chip" data-pick="'+c.id+'">'+esc(c.name)+'</button>').join("")+'</div></div>';
+}
+function initMap(){
+  if(mapReady) return; mapReady = true;
+  const go = ()=>{ try{ buildChart(); }catch(e){ showFallback(); } };
+  if(typeof Highcharts!=="undefined" && Highcharts.maps && Highcharts.maps["custom/europe"]){ go(); return; }
+  if(typeof Highcharts==="undefined"){ showFallback(); return; }
+  const s = document.createElement("script");
+  s.src = "https://unpkg.com/@highcharts/map-collection@1.1.3/custom/europe.js";
+  s.onload = go; s.onerror = showFallback;
+  document.head.appendChild(s);
+}
+function setMode(m){
+  mapMode = m;
+  $("#m-acc").setAttribute("aria-pressed",m==="acc"); $("#m-int").setAttribute("aria-pressed",m==="int");
+  renderLegend(); applyColors();
+}
+
+/* ---------- Tabs and events ---------- */
+const TABS = ["accession","integration","map"];
+function showTab(t,push){
+  if(TABS.indexOf(t)<0) t = "accession";
+  TABS.forEach(x=>{
+    $("#v-"+x).hidden = x!==t;
+    $("#tab-"+x).setAttribute("aria-selected",x===t);
+  });
+  if(push!==false){ try{ history.replaceState(null,"","#"+t); }catch(e){} }
+  if(t==="map"){ initMap(); setTimeout(()=>{ if(chart) chart.reflow(); },50); }
+}
+TABS.forEach(t=>$("#tab-"+t).addEventListener("click",()=>showTab(t)));
+document.addEventListener("click",e=>{
+  const b = e.target.closest("[data-map]");
+  if(b){ showTab("map"); const id=b.getAttribute("data-map"); selected=id; renderPanel(); setTimeout(()=>selectCountry(id,{zoom:true}),chart?30:600); window.scrollTo({top:0}); return; }
+  const f = e.target.closest("[data-f]"); if(f){ intFilter=f.getAttribute("data-f"); renderIntegration(); return; }
+  const s = e.target.closest("[data-sort]"); if(s){ const k=s.getAttribute("data-sort"); intSort = intSort.k===k?{k:k,d:-intSort.d}:{k:k,d:k==="name"?1:-1}; renderIntegration(); return; }
+  const p = e.target.closest("[data-pick]"); if(p){ selectCountry(p.getAttribute("data-pick")); }
+});
+$("#m-acc").addEventListener("click",()=>setMode("acc"));
+$("#m-int").addEventListener("click",()=>setMode("int"));
+
+function rebuildForTheme(){
+  if(!chart) return;
+  const hadSel = selected; chart.destroy(); chart = null;
+  try{ buildChart(); }catch(e){ showFallback(); }
+}
+try{ matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>setTimeout(rebuildForTheme,50)); }catch(e){}
+new MutationObserver(()=>setTimeout(rebuildForTheme,50)).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+window.addEventListener("resize",()=>{ if(chart) chart.reflow(); });
+
+$("#sources").innerHTML = '<b>Sources</b><ul>'+SOURCES.map(s=>'<li><a href="'+s[1]+'" target="_blank" rel="noopener">'+esc(s[0])+'</a></li>').join("")+'</ul>';
+
+renderAccession(); renderIntegration(); renderPanel(); renderLegend();
+const h0 = (location.hash||"").replace("#","");
+showTab(TABS.indexOf(h0)>=0?h0:"accession",false);
+})();
+</script>
+
+</body></html>
